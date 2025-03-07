@@ -3,3 +3,4 @@ __pycache__
 key.txt
 *.log
 *.pyc
+config.json
