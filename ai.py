@@ -114,8 +114,7 @@ def generate_patent_document(title, ideas):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": "请按照专利审查指南要求撰写完整的交底书，特别注意技术方案部分需要包含流程图和数学模型。"}
             ],
-            temperature=config['generation_params']['temperature'],
-            # max_tokens=config['generation_params']['max_tokens']
+            temperature=0.3,
         )
         return response.choices[0].message.content
     except Exception as e:
