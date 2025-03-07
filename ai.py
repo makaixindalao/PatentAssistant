@@ -1,5 +1,66 @@
 from openai import OpenAI
 import textwrap
+import json
+from pathlib import Path
+
+class ConfigLoader:
+    _instance = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.load_config()
+        return cls._instance
+    
+    def load_config(self, config_path='config.json'):
+        """加载配置文件并验证参数"""
+        default_config = {
+            "openai_config": {
+                "api_key": "",
+                "base_url": "https://api.openai.com/v1",
+                "model": "gpt-3.5-turbo"
+            },
+            "generation_params": {
+                "temperature": 0.5,
+                "max_tokens": 1000
+            }
+        }
+        
+        try:
+            if not Path(config_path).exists():
+                raise FileNotFoundError(f"配置文件 {config_path} 不存在")
+            
+            with open(config_path, 'r', encoding='utf-8') as f:
+                user_config = json.load(f)
+            
+            # 深度合并配置
+            self.config = self._deep_merge(default_config, user_config)
+            
+            # 验证必要参数
+            if not self.config['openai_config']['api_key']:
+                raise ValueError("API密钥不能为空")
+            
+        except json.JSONDecodeError:
+            raise ValueError("配置文件格式错误，必须是有效的JSON格式")
+        except Exception as e:
+            raise RuntimeError(f"配置加载失败: {str(e)}")
+    
+    def _deep_merge(self, base, update):
+        """深度合并字典"""
+        for key, value in update.items():
+            if isinstance(value, dict) and key in base:
+                base[key] = self._deep_merge(base.get(key, {}), value)
+            else:
+                base[key] = value
+        return base
+
+def get_openai_client():
+    """根据配置创建OpenAI客户端"""
+    config = ConfigLoader().config['openai_config']
+    return OpenAI(
+        api_key=config['api_key'],
+        base_url=config['base_url']
+    )
 
 # 从 key.txt 文件中读取 API 密钥
 with open("key.txt", "r") as file:
@@ -71,14 +132,18 @@ def generate_patent_document(title, ideas):
     创意要点：{ideas}
     """)
 
+    config = ConfigLoader().config
+    client = get_openai_client()
+    
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=config['openai_config']['model'],
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": "请按照专利审查指南要求撰写完整的交底书，特别注意技术方案部分需要包含流程图和数学模型。"}
             ],
-            temperature=0.3  # 降低随机性保证技术准确性
+            temperature=config['generation_params']['temperature'],
+            max_tokens=config['generation_params']['max_tokens']
         )
         return response.choices[0].message.content
     except Exception as e:

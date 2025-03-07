@@ -1,0 +1,11 @@
+{
+    "openai_config": {
+        "api_key": "your-api-key-here",
+        "base_url": "https://api.makaixin.com",
+        "model": "DeepSeek-R1"
+    },
+    "generation_params": {
+        "temperature": 0.3,
+        "max_tokens": 2000
+    }
+}
