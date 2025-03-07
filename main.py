@@ -1,8 +1,5 @@
 import ai
 import logging
-from playwright.sync_api import sync_playwright
-import os
-import sys
 
 
 # 设置日志记录
