@@ -1,0 +1,5 @@
+# 默认忽略的文件
+__pycache__
+*.txt
+*.log
+*.pyc
