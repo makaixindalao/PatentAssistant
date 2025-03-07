@@ -4,6 +4,7 @@ import json
 import ai
 import logging
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSize
+from PyQt5.QtCore import QCoreApplication, QLibraryInfo
 from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QDialog, QLabel, 
                             QLineEdit, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout,
@@ -118,7 +119,7 @@ class ConfigDialog(QDialog):
             return
             
         try:
-            with open("config.json", "w") as f:
+            with open(ai.resource_path('config.json'), "w") as f:
                 json.dump({"openai_config": new_config}, f, indent=2)
             self.accept()
         except Exception as e:
@@ -224,7 +225,7 @@ class PatentApp(QMainWindow):
         }
         
         try:
-            with open("config.json", "r") as f:
+            with open(ai.resource_path('config.json'), "r") as f:
                 config_data = json.load(f)
                 return config_data.get("openai_config", default_config)
         except FileNotFoundError:

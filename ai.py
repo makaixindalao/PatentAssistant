@@ -2,6 +2,15 @@ from openai import OpenAI
 import textwrap
 import json
 from pathlib import Path
+import os
+import sys
+
+def resource_path(relative_path):
+    return relative_path
+    """ 获取打包后的资源绝对路径 """
+    # if hasattr(sys, '_MEIPASS'):
+    #     return os.path.join(sys._MEIPASS, relative_path)
+    # return os.path.join(os.path.abspath("."), relative_path)
 
 class ConfigLoader:
     _instance = None
@@ -12,7 +21,7 @@ class ConfigLoader:
             cls._instance.load_config()
         return cls._instance
     
-    def load_config(self, config_path='config.json'):
+    def load_config(self, config_path=resource_path('config.json')):
         """加载配置文件并验证参数"""
         default_config = {
             "openai_config": {
